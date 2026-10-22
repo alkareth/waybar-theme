@@ -1,134 +1,172 @@
 /* ~/.config/waybar/style.css
-   Style minimaliste, fond semi-transparent, blocs "solides" au survol.
-   Noto Sans Nerd Font (fallback si tu changes de font). */
+ *
+ * Thème : base "Colloid-dark" (GTK/Qt) + prêt pour Matugen.
+ * -------------------------------------------------------------------------
+ * MATUGEN : si tu utilises matugen avec le template waybar, il réécrit les
+ * variables ci-dessous (MATUGEN START/END) à chaque changement de wallpaper.
+ * Tant que matugen n'est pas en place, les valeurs par défaut reproduisent
+ * l'esprit Colloid-dark (fond #24273a-ish, accent teal/cyan).
+ * Ne touche PAS aux noms de variables : tout le reste du CSS ne référence
+ * QUE ces variables, ce qui rend le re-theming 100% dynamique possible.
+ * -------------------------------------------------------------------------
+ */
 
-@define-color bar-bg     rgba(24, 24, 37, 0.55);
-@define-color bar-solid  #1e1e2e;
-@define-color fg         #cdd6f4;
-@define-color subtext    #a6adc8;
-@define-color accent     #89b4fa;
-@define-color urgent     #f38ba8;
-@define-color green      #a6e3a1;
+/* === MATUGEN START — bloc régénéré par matugen, ne pas éditer à la main === */
+@define-color surface    rgba(36, 39, 58, 0.55);   /* fond barre (translucide) */
+@define-color surface-solid #24273a;               /* fond au hover / tooltip  */
+@define-color overlay    rgba(36, 39, 58, 0.85);   /* menus, tray popup        */
+@define-color on-surface      #d9e0ee;             /* texte principal          */
+@define-color on-surface-variant #b8c0d0;          /* texte secondaire         */
+@define-color primary          #5fb3b3;            /* accent (colloid teal)    */
+@define-color secondary        #89b4fa;            /* accent secondaire        */
+@define-color tertiary         #c6aaef;            /* workspace urgent / média */
+@define-color error            #e64553;            /* critique / urgent        */
+@define-color warning          #df8e1d;           /* batterie faible / DnD     */
+@define-color success          #40a02b;           /* playback / bon état       */
+/* === MATUGEN END === */
 
 * {
   font-family: "Noto Sans Nerd Font", "JetBrainsMono Nerd Font", sans-serif;
   font-size: 12px;
   border: none;
-  border-radius: 0;
   min-height: 0;
 }
 
+/* --- Fenêtre / geometry -----------------------------------------------
+ * 6px d'espace entre la barre et le haut + les côtés de l'écran.
+ * margin-* sur window#waybar décale toute la couche ; padding-* laisse
+ * respirer le contenu à l'intérieur des bords arrondis. */
 window#waybar {
-  background: @bar-bg;
-  color: @fg;
-  transition: background 0.2s;
+  background: @surface;
+  color: @on-surface;
+  border-radius: 7px;
+  margin-top: 6px;
+  margin-left: 6px;
+  margin-right: 6px;
+  padding-left: 6px;
+  padding-right: 6px;
+  transition: background 0.2s ease;
 }
 
-/* --- Blocs génériques : discrets, solides au hover --- */
+/* Les modules sont empilés dans .modules-left/center/right ; on garde un
+ * petit gap interne entre blocs (cohérent avec le "spacing" de config.jsonc) */
+.modules-left,
+.modules-center,
+.modules-right {
+  padding: 0;
+}
+
+/* --- Blocs génériques : discrets, solides au survol ------------------- */
 .modules-left > *,
 .modules-center > *,
 .modules-right > * {
   padding: 0 8px;
+  margin: 0 2px;
   background: transparent;
-  color: @subtext;
+  color: @on-surface-variant;
+  border-radius: 7px;
   transition: all 0.15s ease;
 }
 
 .modules-left > *:hover,
 .modules-center > *:hover,
 .modules-right > *:hover {
-  background: @bar-solid;
-  color: @fg;
+  background: @surface-solid;
+  color: @on-surface;
 }
 
-/* --- Workspaces --- */
+/* --- Workspaces -------------------------------------------------------- */
 #workspaces button {
   padding: 0 6px;
-  background: transparent;
-  color: @subtext;
-  border-radius: 4px;
   margin: 4px 1px;
+  background: transparent;
+  color: @on-surface-variant;
+  border-radius: 7px;
 }
 #workspaces button:hover {
-  background: @bar-solid;
-  color: @fg;
+  background: @surface-solid;
+  color: @on-surface;
   box-shadow: none;
   text-shadow: none;
 }
 #workspaces button.active {
-  color: @accent;
-  background: alpha(@accent, 0.15);
+  color: @primary;
+  background: alpha(@primary, 0.18);
 }
 #workspaces button.urgent {
-  color: @urgent;
+  color: @error;
+  background: alpha(@error, 0.15);
 }
 
-/* --- Fenêtre active --- */
+/* --- Fenêtre active ---------------------------------------------------- */
+#hyprland-window,
 #window {
-  color: @fg;
+  color: @on-surface;
 }
 #window.empty {
   color: transparent;
 }
 
-/* --- Horloge --- */
+/* --- Horloge ----------------------------------------------------------- */
 #clock {
-  color: @fg;
+  color: @on-surface;
 }
 #clock:hover {
-  color: @accent;
+  color: @primary;
 }
 
-/* --- Média --- */
+/* --- Média ------------------------------------------------------------- */
 #custom-mediaplayer {
-  color: @green;
+  color: @success;
+}
+#custom-mediaplayer.paused {
+  color: @on-surface-variant;
 }
 
-/* --- Infos système --- */
-#cpu     { color: @fg; }
-#memory  { color: @fg; }
-#temperature { color: @fg; }
-#temperature.critical { color: @urgent; }
-#battery { color: @fg; }
-#battery.warning  { color: #f9e2af; }
-#battery.critical { color: @urgent; }
+/* --- Infos système ----------------------------------------------------- */
+#cpu,
+#memory,
+#temperature,
+#battery {
+  color: @on-surface;
+}
+#temperature.critical { color: @error; }
+#battery.warning      { color: @warning; }
+#battery.critical     { color: @error; }
 
-/* --- Réseau / BT / son --- */
-#network.disconnected { color: @urgent; }
-#bluetooth.disabled, #bluetooth.off { color: transparent; }
-#pulseaudio.muted { color: @subtext; }
+/* --- Réseau / BT / son -------------------------------------------------- */
+#network.disconnected { color: @error; }
+#bluetooth.disabled,
+#bluetooth.off        { color: transparent; }
+#pulseaudio.muted     { color: @on-surface-variant; }
 
-/* --- SwayNC --- */
-#custom-swaync {
-  color: @subtext;
-}
-#custom-swaync.inactive {
-  color: @subtext;
-}
-#custom-swaync.notification {
-  color: @accent;
-}
-#custom-swaync.dnd {
-  color: #f9e2af;
-}
+/* --- SwayNC ------------------------------------------------------------- */
+#custom-swaync                { color: @on-surface-variant; }
+#custom-swaync.inactive       { color: @on-surface-variant; }
+#custom-swaync.notification   { color: @primary; }
+#custom-swaync.dnd            { color: @warning; }
 
-/* --- Tray --- */
+/* --- Tray --------------------------------------------------------------- */
 #tray {
   padding: 0 4px;
+  border-radius: 7px;
 }
 #tray > .passive {
   -gtk-icon-effect: dim;
 }
-#tray menu {
-  background: @bar-solid;
-  color: @fg;
+#tray menu,
+#tray menu > * {
+  background: @overlay;
+  color: @on-surface;
+  border-radius: 7px;
 }
 
-/* Tooltip global sombre */
+/* --- Tooltips (calendrier, etc.) --------------------------------------- */
 tooltip {
-  background: @bar-solid;
-  color: @fg;
-  border-radius: 6px;
+  background: @surface-solid;
+  color: @on-surface;
+  border-radius: 7px;
+  border: 1px solid alpha(@primary, 0.25);
 }
 tooltip label {
   padding: 4px;
