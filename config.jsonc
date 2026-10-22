@@ -1,0 +1,228 @@
+// ~/.config/waybar/config.jsonc
+// Waybar >= 0.10 — Hyprland, barre en haut, identique sur les 2 écrans
+{
+  "layer": "top",
+  "position": "top",
+  "height": 30,
+  "spacing": 4,
+  "margin-top": 0,
+  "margin-bottom": 0,
+  "margin-left": 0,
+  "margin-right": 0,
+  "reload_style_on_change": true,
+
+  // Une entrée sans "output" = une barre par écran automatiquement,
+  // avec la même config => barres identiques sur tes 2 écrans.
+  "modules-left": [
+    "hyprland/workspaces",
+    "hyprland/window"
+  ],
+
+  "modules-center": [
+    "clock",
+    "custom/mediaplayer"
+  ],
+
+  "modules-right": [
+    "custom/privacy",        // placeholder (micro/caméra) — à compléter plus tard
+    "cpu",
+    "memory",
+    "temperature",
+    "battery",
+    "network",
+    "bluetooth",
+    "pulseaudio",            // module wireplumber/pipewire-compatible
+    "custom/swaync",
+    "tray"
+  ],
+
+  // ————————————————————— GAUCHE —————————————————————
+  "hyprland/workspaces": {
+    "format": "{icon}",
+    "on-click": "activate",
+    "persistent-workspaces": {
+      "*": [1, 2, 3, 4, 5]
+    },
+    "format-icons": {
+      "1": "1", "2": "2", "3": "3", "4": "4", "5": "5",
+      "6": "6", "7": "7", "8": "8", "9": "9", "10": "0",
+      "active": "",
+      "default": ""
+    }
+  },
+
+  "hyprland/window": {
+    "format": "{title}",
+    "max-length": 60,
+    "separate-outputs": true,
+    "rewrite": {
+      "(.*) — Mozilla Firefox": " $1",
+      "(.*) - fish": "> $1"
+    }
+  },
+
+  // ————————————————————— CENTRE —————————————————————
+  "clock": {
+    "format": "{:%a %d %b  %H:%M}",
+    "tooltip-format": "<big>{:%Y %B}</big>\n<tt><small>{calendar}</small></tt>",
+    "format-alt": "{:%Y-%m-%d}",
+    "actions": {
+      "onclick": "zoom",
+      "on-scroll-up": "shift prev_month",
+      "on-scroll-down": "shift next_month",
+      "tooltip-scroll": "shift next_month"
+    },
+    "calendar": {
+      "mode": "month",
+      "mode-mon-col": 3,
+      "weeks-pos": "right",
+      "on-scroll": 1,
+      "format": {
+        "months": "<span color='#a6adc8'><tt><b>{}</b></tt></span>",
+        "days": "<span color='#bac2de'>{}</span>",
+        "weekdays": "<span color='#89b4fa'><b>{}</b></span>",
+        "today": "<u><span color='#f5c2e7'><b>{}</b></span></u>",
+        "weekly": "<span color='#94e2d0'>W{}</span>",
+        "max_length": 25
+      }
+    }
+  },
+
+  // MPRIS : on garde le module brut prêt pour le ricing "avancé" plus tard.
+  // Le custom/mediaplayer ci-dessous l'habille (drop-down / ellipsis / pause).
+  "mpris/player": {
+    "player-name": ".*",
+    "interval": 5,
+    "descriptions": {
+      "metadata-length": 120
+    },
+    "format": "{player_icon} {dynamic}",
+    "play-pause-icon-only": false,
+    "max-length": 50
+  },
+
+  "custom/mediaplayer": {
+    "exec": "~/.config/waybar/scripts/mediaplayer.sh",
+    "return-type": "json",
+    "interval": 5,
+    "tooltip": true,
+    "on-click": "playerctl play-pause",
+    "on-click-right": "playerctl next",
+    "on-scroll-up": "playerctl position 5+",
+    "on-scroll-down": "playerctl position 5-",
+    "format": "{}",
+    "max-length": 60
+  },
+
+  // ————————————————————— DROITE —————————————————————
+  // Placeholder privacy : affiche rien tant que non configuré.
+  // Phase 2 : script qui détecte micro/cam via pw-dump / hyprctl.
+  "custom/privacy": {
+    "exec": "~/.config/waybar/scripts/privacy.sh",
+    "interval": 5,
+    "escape": true,
+    "return-type": "json",
+    "tooltip": false
+  },
+
+  "cpu": {
+    "format": " {usage:}% ",
+    "tooltip": false,
+    "interval": 5
+  },
+
+  "memory": {
+    "format": " {}% ",
+    "tooltip": false,
+    "interval": 5
+  },
+
+  "temperature": {
+    "thermal-zone": 0,
+    "hwmon-path": "/sys/class/hwmon/hwmon2/temp1_input",
+    "critical-threshold": 80,
+    "format": " {temperatureC}°C ",
+    "format-critical": " {temperatureC}°C ",
+    "tooltip": false,
+    "interval": 5
+  },
+
+  "battery": {
+    "bat": "BAT1",
+    "adapter": "ACAD",
+    "full-at": 100,
+    "design-capacity": false,
+    "states": {
+      "good": 95,
+      "warning": 30,
+      "critical": 15
+    },
+    "format": "{icon} {capacity}%",
+    "format-charging": " {capacity}%",
+    "format-plugged": " {capacity}%",
+    "format-full": "{icon} Full",
+    "format-icons": ["", "", "", "", ""],
+    "tooltip": false,
+    "interval": 60
+  },
+
+  "network": {
+    "interface": "wlp*",
+    "family": "ipv4",
+    "format-wifi": " {essid} ({signalStrength}%)",
+    "format-ethernet": " {ipaddr}/{cidr}",
+    "format-linked": " {ifname} (No IP)",
+    "format-disconnected": " ⚠ Disconnected",
+    "format-alt": " {ifname}: {ipaddr}",
+    "tooltip": true,
+    "interval": 10
+  },
+
+  "bluetooth": {
+    "format": " {status}",
+    "format-disabled": "",
+    "format-off": "",
+    "format-connected": " {num_connections}",
+    "tooltip": false,
+    "controller": "org/bluez/hci0",
+    "interval": 30
+  },
+
+  // Sous PipeWire + WirePlumber, waybar utilise le module "pulseaudio"
+  // qui communique en PulseAudio-compatible via pipewire-pulse. OK.
+  "pulseaudio": {
+    "format": "{icon} {volume}%",
+    "format-muted": " muted",
+    "format-bluetooth": "{icon} {volume}% {state}",
+    "format-icons": {
+      "headphone": "",
+      "hands-free": "",
+      "headset": "",
+      "phone": "",
+      "portable": "",
+      "car": "",
+      "default": ["", "", ""]
+    },
+    "scroll-step": 5,
+    "on-click": "~/.config/waybar/scripts/toggle-mute.sh",
+    "on-click-right": "pavucontrol",
+    "tooltip": false,
+    "min-length": 6
+  },
+
+  // SwayNC : piloté par swaync-client. Le script renvoie du JSON
+  // {text, tooltip, class} selon qu'il y a des notifs non-lues ou pas.
+  "custom/swaync": {
+    "exec": "~/.config/waybar/scripts/swaync.sh",
+    "return-type": "json",
+    "interval": 5,
+    "on-click": "~/.config/waybar/scripts/swaync-toggle.sh",
+    "tooltip": true
+  },
+
+  "tray": {
+    "icon-size": 16,
+    "spacing": 6,
+    "tooltip": false
+  }
+}
