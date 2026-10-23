@@ -1,0 +1,38 @@
+/* ~/.config/waybar/template.css
+ *
+ * Template Matugen pour Waybar.
+ * -------------------------------------------------------------------------
+ * Usage (via le hook, à chaque changement de wallpaper) :
+ *   ~/.config/waybar/scripts/hook-matugen.sh [image]
+ * qui appelle :
+ *   matugen -l hexbox -t ~/.config/waybar/template.css \
+ *           -o ~/.config/waybar image.png
+ *
+ * matugen lit template.json pour forcer le schéma "dark", substitue les
+ * {{COLOR.*}} / {{SEPARATOR}} ci-dessous et écrit style.css dans -o.
+ * Le bloc délimité par MATUGEN START/END doit rester IDENTIQUE (mêmes
+ * sélecteurs/mêmes ordre) à celui de style.css — c'est lui qui est régénéré.
+ *
+ * ⚠️ RÈGLES :
+ *  - Ne JAMAIS renommer les variables (@surface, @primary, ...). Tout le
+ *    reste de style.css ne référence que ces 11 noms.
+ *  - @define-color n'accepte PAS rgba() en CSS GTK -> uniquement des hex
+ *    purs (#rrggbb), d'où "hexbox". La transparence se fait à l'usage via
+ *    alpha(@x, 0.55) dans le reste du CSS.
+ *  - Séparateur décimal : {{SEPARATOR}} = "." avec hexbox (jamais "#." !).
+ * -------------------------------------------------------------------------
+ */
+
+/* === MATUGEN START — bloc régénéré par matugen, ne pas éditer à la main === */
+@define-color surface       {{COLOR.neutral_variant{{SEPARATOR}}90}};   /* fond des pills (via alpha()) */
+@define-color surface-solid {{COLOR.neutral_variant{{SEPARATOR}}95}};   /* hover / tooltips             */
+@define-color overlay       {{COLOR.neutral{{SEPARATOR}}20}};           /* menus, popups tray           */
+@define-color on-surface         {{COLOR.on_surface{{SEPARATOR}}variant}};  /* texte principal       */
+@define-color on-surface-variant {{COLOR.surface{{SEPARATOR}}variant}};     /* texte secondaire/icônes */
+@define-color primary       {{COLOR.primary{{SEPARATOR}}40}};    /* accent principal                   */
+@define-color secondary     {{COLOR.secondary{{SEPARATOR}}40}};  /* accent secondaire                  */
+@define-color tertiary      {{COLOR.tertiary{{SEPARATOR}}40}};   /* média / workspace spécial          */
+@define-color error         {{COLOR.error{{SEPARATOR}}40}};      /* critique / urgent                  */
+@define-color warning       {{COLOR.tertiary{{SEPARATOR}}80}};   /* batterie faible / DnD              */
+@define-color success       {{COLOR.secondary{{SEPARATOR}}80}};  /* playback / bon état                */
+/* === MATUGEN END === */

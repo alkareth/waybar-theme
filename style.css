@@ -169,7 +169,10 @@ group > * {
 #custom-swaync.notification { color: @primary; }
 #custom-swaync.dnd          { color: @warning; }
 
-/* Privacy retiré (placeholder invisible) — réintégrable plus tard. */
+/* Privacy : retiré de la barre (module abandonné sous Hyprland), mais styles
+ * conservés pour réintégration future via scripts/privacy.sh (pw-dump). */
+#custom-privacy            { color: @on-surface-variant; }
+#custom-privacy.active     { color: @error; }
 
 /* --- Tray --------------------------------------------------------------- */
 #tray {
