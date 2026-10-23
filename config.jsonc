@@ -3,54 +3,59 @@
 {
   "layer": "top",
   "position": "top",
-  "height": 32,
-  "spacing": 0,
-  "margin-top": 6,
-  "margin-left": 6,
-  "margin-right": 6,
+  "height": 34,
+  "spacing": 6,               // espace entre les pills (left/center/right)
+  "margin-top": 6,            // gap de 6px avec le haut de l'écran
+  "margin-left": 6,           // gap de 6px à gauche
+  "margin-right": 6,          // gap de 6px à droite
   "margin-bottom": 0,
   "reload_style_on_change": true,
 
   // Une entrée sans "output" = une barre par écran automatiquement,
   // avec la même config => barres identiques sur tes 2 écrans.
-  // Trois "pills" séparés : modules-left / center / right gèrent chacun
-  // leur background + padding (cf style.css). Les groupes "group/*"
-  // collent plusieurs modules dans la même pill.
+  // window#waybar est transparent : ce sont les sections modules-* qui
+  // dessinent des "pills" séparées (cf style.css).
   "modules-left": [
-    "hyprland/workspaces",
+    "group/ws",
     "custom/sep",
     "hyprland/window"
   ],
 
   "modules-center": [
-    "group/center-media",
+    "group/clock",
     "custom/sep",
-    "group/center-clock"
+    "group/media"
   ],
 
+  // DROITE, ordre demandé :
+  // sous-groupe 1 (icônes seules, tooltip pour détails) : tray, swaync, wifi, bt, audio
+  // séparateur
+  // sous-groupe 2 (icône + valeur) : cpu, ram, temp (+ batterie si dispo)
   "modules-right": [
-    "group/right-privacy",
+    "group/status-icons",
     "custom/sep",
-    "group/right-swaync"
+    "group/system-info"
   ],
 
   // ————————————————————— GAUCHE —————————————————————
-  // Séparateur minimal (un "|") entre les pills / au sein des pills.
+  // Séparateur minimal (un "│") entre les pills / au sein des groupes.
   "custom/sep": {
     "format": "│",
     "tooltip": false,
     "interval": "once"
   },
 
+  "group/ws": {
+    "orientation": "inherit",
+    "modules": ["hyprland/workspaces"]
+  },
+
   "hyprland/workspaces": {
-    "format": "{icon}",
+    // "{name}" = numéro du workspace visible, y compris l'actif.
+    "format": "{name}",
     "on-click": "activate",
     "persistent-workspaces": {
       "*": [1, 2, 3, 4, 5]
-    },
-    "format-icons": {
-      "1": "1", "2": "2", "3": "3", "4": "4", "5": "5",
-      "6": "6", "7": "7", "8": "8", "9": "9", "10": "0"
     }
   },
 
@@ -65,20 +70,9 @@
   },
 
   // ————————————————————— CENTRE —————————————————————
-  // Groupes = une seule pill ; les modules internes sont "collés",
-  // on met un custom/sep entre clock & media AU SEIN d'un groupe si besoin.
-  "group/center-media": {
+  "group/clock": {
     "orientation": "inherit",
-    "modules": [
-      "custom/mediaplayer"
-    ]
-  },
-
-  "group/center-clock": {
-    "orientation": "inherit",
-    "modules": [
-      "clock"
-    ]
+    "modules": ["clock"]
   },
 
   "clock": {
@@ -107,14 +101,15 @@
     }
   },
 
-  // MPRIS : on garde le module brut prêt pour le ricing "avancé" plus tard.
-  // Le custom/mediaplayer ci-dessous l'habille (drop-down / ellipsis / pause).
+  "group/media": {
+    "orientation": "inherit",
+    "modules": ["custom/mediaplayer"]
+  },
+
+  // MPRIS brut, prêt pour le ricing "avancé" plus tard (drop-down etc.)
   "mpris/player": {
     "player-name": ".*",
     "interval": 5,
-    "descriptions": {
-      "metadata-length": 120
-    },
     "format": "{player_icon} {dynamic}",
     "play-pause-icon-only": false,
     "max-length": 50
@@ -134,11 +129,22 @@
   },
 
   // ————————————————————— DROITE —————————————————————
-  // Pill "privacy + système" : micro/cam (placeholder), cpu, ram, temp, batterie.
-  "group/right-privacy": {
+  // Sous-groupe 1 : icônes seules, infos textuelles en tooltip.
+  "group/status-icons": {
     "orientation": "inherit",
     "modules": [
-      "custom/privacy",
+      "tray",
+      "custom/swaync",
+      "network",
+      "bluetooth",
+      "pulseaudio"
+    ]
+  },
+
+  // Sous-groupe 2 : icône Nerd Font + valeur texte.
+  "group/system-info": {
+    "orientation": "inherit",
+    "modules": [
       "cpu",
       "memory",
       "temperature",
@@ -146,47 +152,33 @@
     ]
   },
 
-  // Pill "réseau + audio + notifications + tray".
-  "group/right-swaync": {
-    "orientation": "inherit",
-    "modules": [
-      "network",
-      "bluetooth",
-      "pulseaudio",
-      "custom/swaync",
-      "tray"
-    ]
-  },
-
-  // Placeholder privacy : renvoie une icône neutre pour rester visible.
-  // Phase 2 : script qui détecte micro/cam via pw-dump / hyprctl.
-  "custom/privacy": {
-    "exec": "~/.config/waybar/scripts/privacy.sh",
-    "interval": 5,
-    "escape": true,
-    "return-type": "json",
-    "tooltip": false
-  },
-
   "cpu": {
-    "format": " {usage:}% ",
-    "tooltip": false,
+    "format": " {usage}%",
+    "tooltip": true,
+    "tooltip-format": "CPU: {usage}%\nCharge: {load}",
     "interval": 5
   },
 
   "memory": {
-    "format": " {}% ",
-    "tooltip": false,
+    "format": " {percentage}%",
+    "tooltip": true,
+    "tooltip-format": "RAM: {used:0.1f}Go / {total:0.1f}Go",
     "interval": 5
   },
 
+  // ⚠ TEMPÉRATEUR bloquée à 25°C : hwmon2/temp1 est souvent un capteur
+  // fantôme. Trouve le bon avec :
+  //   for f in /sys/class/hwmon/hwmon*/temp*_input; do \
+  //     echo "$(cat ${f%_input}_label 2>/dev/null || echo $f): $(cat $f)"; done
+  // puis mets le chemin exact ci-dessous (ex. Tctl / k1temp / acpitz).
+  // En secours : "hwmon-path-abs": "/sys/devices/platform/coretemp.0/hwmon"
   "temperature": {
-    "thermal-zone": 0,
     "hwmon-path": "/sys/class/hwmon/hwmon2/temp1_input",
     "critical-threshold": 80,
-    "format": " {temperatureC}°C ",
-    "format-critical": " {temperatureC}°C ",
-    "tooltip": false,
+    "format": " {temperatureC}°C",
+    "format-critical": " {temperatureC}°C",
+    "tooltip": true,
+    "tooltip-format": "{temperatureC}°C ({temperatureF}°F)",
     "interval": 5
   },
 
@@ -194,63 +186,64 @@
     "bat": "BAT1",
     "adapter": "ACAD",
     "full-at": 100,
-    "design-capacity": false,
-    "states": {
-      "good": 95,
-      "warning": 30,
-      "critical": 15
-    },
+    "states": { "good": 95, "warning": 30, "critical": 15 },
     "format": "{icon} {capacity}%",
     "format-charging": " {capacity}%",
     "format-plugged": " {capacity}%",
     "format-full": "{icon} Full",
     "format-icons": ["", "", "", "", ""],
-    "tooltip": false,
+    "tooltip": true,
     "interval": 60
   },
 
+  // Icône seule ; SSID/IP/signal dans le tooltip. Clic = menu réseau.
   "network": {
     "interface": "wlp*",
     "family": "ipv4",
-    "format-wifi": " {essid} ({signalStrength}%)",
-    "format-ethernet": " {ipaddr}/{cidr}",
-    "format-linked": " {ifname} (No IP)",
-    "format-disconnected": " ⚠ Disconnected",
-    "format-alt": " {ifname}: {ipaddr}",
-    "tooltip": true,
+    "format-wifi": "",
+    "format-ethernet": "",
+    "format-linked": "",
+    "format-disconnected": "⚠",
+    "tooltip-format-wifi": "{essid}\nIP : {ipaddr}/{cidr}\nSignal : {signalStrength}%",
+    "tooltip-format-ethernet": "{ifname}\nIP : {ipaddr}/{cidr}",
+    "tooltip-format-disconnected": "Déconnecté",
+    "on-click": "~/.config/waybar/scripts/network-menu.sh",
     "interval": 10
   },
 
+  // Invisible quand éteint/hors service (pour ne pas polluer la pill).
   "bluetooth": {
-    "format": " {status}",
+    "format": "",
     "format-disabled": "",
     "format-off": "",
-    "format-connected": " {num_connections}",
-    "tooltip": false,
+    "format-connected": "",
+    "tooltip": true,
+    "tooltip-format": "{status}\n{num_connections} appareil(s)",
     "controller": "org/bluez/hci0",
     "interval": 30
   },
 
-  // Sous PipeWire + WirePlumber, waybar utilise le module "pulseaudio"
-  // qui communique en PulseAudio-compatible via pipewire-pulse. OK.
+  // PipeWire via pipewire-pulse : le module pulseaudio fonctionne.
+  // Icône seule, volume/muette/disp. dans le tooltip ; clic = mute via wpctl.
   "pulseaudio": {
-    "format": "{icon} {volume}%",
-    "format-muted": " muted",
-    "format-bluetooth": "{icon} {volume}% {state}",
+    "format": "{icon}",
+    "format-bluetooth": "{icon}",
+    "format-muted": "",
+    "tooltip-format": "{volume}% {format_source}",
+    "tooltip-format-muted": "Muet",
     "format-icons": {
-      "headphone": "",
-      "hands-free": "",
-      "headset": "",
+      "headphone": "",
+      "hands-free": "",
+      "headset": "",
       "phone": "",
-      "portable": "",
-      "car": "",
-      "default": ["", "", ""]
+      "portable": "",
+      "car": "",
+      "default": ["", "", ""]
     },
     "scroll-step": 5,
     "on-click": "~/.config/waybar/scripts/toggle-mute.sh",
     "on-click-right": "pavucontrol",
-    "tooltip": false,
-    "min-length": 6
+    "min-length": 2
   },
 
   // SwayNC : piloté par swaync-client. Le script renvoie du JSON
@@ -266,6 +259,6 @@
   "tray": {
     "icon-size": 16,
     "spacing": 6,
-    "tooltip": false
+    "tooltip": true
   }
 }

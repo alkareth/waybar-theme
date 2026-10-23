@@ -2,27 +2,28 @@
  *
  * Thème : base "Colloid-dark" (GTK/Qt) + prêt pour Matugen.
  * -------------------------------------------------------------------------
- * MATUGEN : si tu utilises matugen avec le template waybar, il réécrit les
- * variables ci-dessous (MATUGEN START/END) à chaque changement de wallpaper.
- * Tant que matugen n'est pas en place, les valeurs par défaut reproduisent
- * l'esprit Colloid-dark (fond #24273a-ish, accent teal/cyan).
- * Ne touche PAS aux noms de variables : tout le reste du CSS ne référence
- * QUE ces variables, ce qui rend le re-theming 100% dynamique possible.
+ * MATUGEN : ce fichier ne référence QUE les variables du bloc
+ * MATUGEN START/END. matugen (template waybar/style.css) régénère
+ * uniquement ce bloc à chaque changement de wallpaper -> re-theming 100%
+ * dynamique sans toucher le reste. Ne change pas les noms de variables.
+ * Valeurs par défaut = esprit Colloid-dark (sombre, accent teal #5fb3b3).
+ * NB : @define-color n'accepte PAS rgba() en CSS GTK -> on sépare
+ * couleur hex + alpha via la fonction alpha() de GTK.
  * -------------------------------------------------------------------------
  */
 
 /* === MATUGEN START — bloc régénéré par matugen, ne pas éditer à la main === */
-@define-color surface    rgba(36, 39, 58, 0.55);   /* fond barre (translucide) */
-@define-color surface-solid #24273a;               /* fond au hover / tooltip  */
-@define-color overlay    rgba(36, 39, 58, 0.85);   /* menus, tray popup        */
-@define-color on-surface      #d9e0ee;             /* texte principal          */
-@define-color on-surface-variant #b8c0d0;          /* texte secondaire         */
-@define-color primary          #5fb3b3;            /* accent (colloid teal)    */
-@define-color secondary        #89b4fa;            /* accent secondaire        */
-@define-color tertiary         #c6aaef;            /* workspace urgent / média */
-@define-color error            #e64553;            /* critique / urgent        */
-@define-color warning          #df8e1d;           /* batterie faible / DnD     */
-@define-color success          #40a02b;           /* playback / bon état       */
+@define-color surface       #24273a;   /* fond des pills (avec alpha())      */
+@define-color surface-solid #2b2e42;   /* fond au hover / tooltips           */
+@define-color overlay       #1e222a;   /* menus, popups tray                 */
+@define-color on-surface        #d9e0ee;  /* texte principal                  */
+@define-color on-surface-variant #a7b0c5; /* texte secondaire / icônes         */
+@define-color primary       #5fb3b3;   /* accent (colloid teal)              */
+@define-color secondary     #89b4fa;   /* accent secondaire                  */
+@define-color tertiary      #c6aaef;   /* média / workspace spécial          */
+@define-color error         #e64553;   /* critique / urgent                  */
+@define-color warning       #df8e1d;   /* batterie faible / DnD              */
+@define-color success       #40a02b;   /* playback / bon état                */
 /* === MATUGEN END === */
 
 * {
@@ -33,35 +34,37 @@
 }
 
 /* --- Fenêtre / géométrie ----------------------------------------------
- * window#waybar est TOTALEMENT transparent : ce sont les trois sections
- * (.modules-left/.center/.right) qui jouent le rôle de "pills" flottantes
- * (background, marges, padding, hover). Les 6px d'espace avec le bord de
- * l'écran sont gérés par margin-* dans config.jsonc. */
+ * window#waybar est TOTALEMENT transparent et sans marge visible : il ne
+ * fait que positionner les sections. Les gaps écran (6px haut/gauche/droite)
+ * viennent de margin-* dans config.jsonc ; l'espace entre les 3 pills vient
+ * de "spacing": 6. */
 window#waybar {
   background: transparent;
   color: @on-surface;
   border: none;
 }
 
-/* Chaque section = une pill arrondie, semi-transparente, solide au survol */
+/* Chaque section = une pill flottante arrondie, semi-transparente,
+ * solide au survol. C'est ICI (et pas sur window#waybar) que vivent
+ * backgrounds / paddings / hover. */
 .modules-left,
 .modules-center,
 .modules-right {
-  background: @surface;
+  background: alpha(@surface, 0.55);
   border-radius: 7px;
   padding: 0 10px;
-  margin: 4px 3px;           /* petit espace entre les 3 pills */
-  transition: background 0.2s ease;
+  margin: 4px 0;               /* respiration verticale dans la barre */
+  transition: background 200ms ease;
 }
 
 .modules-left:hover,
 .modules-center:hover,
 .modules-right:hover {
-  background: @surface-solid;
+  background: alpha(@surface-solid, 1);
 }
 
-/* Groupes (group/*) et modules internes : pas de fond propre,
- * ils vivent DANS la pill de leur section. */
+/* Groupes (group/*) et modules internes : pas de fond propre, ils vivent
+ * DANS la pill de leur section. */
 .group,
 .modules-left > *,
 .modules-center > *,
@@ -69,31 +72,26 @@ window#waybar {
   background: transparent;
   border-radius: 0;
   margin: 0;
-  padding: 0 6px;
+  padding: 0 5px;
   color: @on-surface-variant;
-  transition: color 0.15s ease;
+  transition: color 150ms ease;
 }
 
-/* À l'intérieur d'un groupe, les modules collent (pas de padding latéral
- * sur les bords intérieurs pour garder le "│" bien placé). */
 .group > * {
-  padding: 0 6px;
+  padding: 0 5px;
 }
 
-/* Le premier/dernier module d'une pill garde les coins arrondis visuels
- * grâce à l'overflow du parent — rien à faire côté enfant. */
-
-/* Séparateur vertical interne (custom/sep) */
+/* Séparateur vertical (custom/sep) — visible mais discret. */
 #custom-sep {
-  color: alpha(@on-surface-variant, 0.4);
+  color: alpha(@on-surface-variant, 0.5);
   padding: 0 2px;
   font-weight: bold;
 }
 
 /* --- Workspaces -------------------------------------------------------- */
 #workspaces button {
-  padding: 0 6px;
-  margin: 4px 1px;
+  padding: 0 7px;
+  margin: 5px 1px;
   background: transparent;
   color: @on-surface-variant;
   border-radius: 7px;
@@ -105,8 +103,8 @@ window#waybar {
   text-shadow: none;
 }
 #workspaces button.active {
-  color: @primary;
-  background: alpha(@primary, 0.25);
+  color: @surface;                    /* numéro lisible sur pastille accentuée */
+  background: @primary;
   font-weight: bold;
 }
 #workspaces button.urgent {
@@ -139,7 +137,7 @@ window#waybar {
   color: @on-surface-variant;
 }
 
-/* --- Infos système ----------------------------------------------------- */
+/* --- Infos système (groupe icône+valeur) ------------------------------- */
 #cpu,
 #memory,
 #temperature,
@@ -150,22 +148,20 @@ window#waybar {
 #battery.warning      { color: @warning; }
 #battery.critical     { color: @error; }
 
-/* --- Réseau / BT / son -------------------------------------------------- */
+/* --- Réseau / BT / son (groupe icônes seules) -------------------------- */
 #network.disconnected { color: @error; }
+#network.wifi         { color: @on-surface; }
 #bluetooth.disabled,
 #bluetooth.off        { color: transparent; }
 #pulseaudio.muted     { color: @on-surface-variant; }
 
 /* --- SwayNC ------------------------------------------------------------- */
-#custom-swaync                { color: @on-surface-variant; }
-#custom-swaync.inactive       { color: @on-surface-variant; }
-#custom-swaync.notification   { color: @primary; }
-#custom-swaync.dnd            { color: @warning; }
+#custom-swaync              { color: @on-surface-variant; }
+#custom-swaync.inactive     { color: @on-surface-variant; }
+#custom-swaync.notification { color: @primary; }
+#custom-swaync.dnd          { color: @warning; }
 
-/* Privacy placeholder : visible même inactif (cf privacy.sh qui renvoie
- * désormais une icône "shield" au lieu d'une chaîne vide). */
-#custom-privacy               { color: @on-surface-variant; }
-#custom-privacy.active        { color: @error; }
+/* Privacy retiré (placeholder invisible) — réintégrable plus tard. */
 
 /* --- Tray --------------------------------------------------------------- */
 #tray {
@@ -182,7 +178,7 @@ window#waybar {
   border-radius: 7px;
 }
 
-/* --- Tooltips (calendrier, etc.) --------------------------------------- */
+/* --- Tooltips (calendrier, détails réseau, etc.) ----------------------- */
 tooltip {
   background: @surface-solid;
   color: @on-surface;
