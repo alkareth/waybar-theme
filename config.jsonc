@@ -3,7 +3,7 @@
 {
   "layer": "top",
   "position": "top",
-  "height": 34,
+  "height": 20,
   "spacing": 6,               // espace entre les pills (left/center/right)
   "margin-top": 6,            // gap de 6px avec le haut de l'écran
   "margin-left": 6,           // gap de 6px à gauche
@@ -17,13 +17,11 @@
   // dessinent des "pills" séparées (cf style.css).
   "modules-left": [
     "group/ws",
-    "custom/sep",
     "hyprland/window"
   ],
 
   "modules-center": [
     "group/clock",
-    "custom/sep",
     "group/media"
   ],
 
@@ -33,19 +31,10 @@
   // sous-groupe 2 (icône + valeur) : cpu, ram, temp (+ batterie si dispo)
   "modules-right": [
     "group/status-icons",
-    "custom/sep",
     "group/system-info"
   ],
 
   // ————————————————————— GAUCHE —————————————————————
-  // Séparateur : fine barre verticale dessinée en CSS (border-left dans
-  // style.css), le format n'est qu'un espace occupant la largeur.
-  "custom/sep": {
-    "format": " ",
-    "tooltip": false,
-    "interval": "once"
-  },
-
   "group/ws": {
     "orientation": "inherit",
     "modules": ["hyprland/workspaces"]

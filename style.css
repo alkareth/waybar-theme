@@ -28,7 +28,7 @@
 
 * {
   font-family: "Noto Sans Nerd Font", "JetBrainsMono Nerd Font", sans-serif;
-  font-size: 12px;
+  font-size: 10px;
   border: none;
   min-height: 0;
 }
@@ -46,33 +46,20 @@ window#waybar {
   border: none;
 }
 
+/* Trois pills principales */
 .modules-left,
 .modules-center,
 .modules-right {
-  background: transparent;
-  border-radius: 0;
+  background: alpha(@surface, 0.55);
+  color: @on-surface-variant;
+  border-radius: 7px;
   padding: 0;
   margin: 0;
 }
 
-/* La pilule unitaire : appliquée aux modules directs ET aux enfants de
- * groupes (un group est lui-même une pilule contenant des sous-pilules). */
-.modules-left > *,
-.modules-center > *,
-.modules-right > *,
-.group > * {
-  background: alpha(@surface, 0.55);
-  color: @on-surface-variant;
-  border-radius: 7px;
-  padding: 0 8px;
-  margin: 4px 0;
-  transition: background 200ms ease, color 150ms ease;
-}
-
-.modules-left > *:hover,
-.modules-center > *:hover,
-.modules-right > *:hover,
-.group > *:hover {
+.modules-left:hover,
+.modules-center:hover,
+.modules-right:hover {
   background: alpha(@surface-solid, 1);   /* hover solide */
   color: @on-surface;
 }
@@ -80,9 +67,9 @@ window#waybar {
 /* Groupes = pilule englobante un peu plus discrète, sans hover global
  * (chaque sous-module gère son propre hover). */
 group {
-  background: alpha(@surface, 0.35);
+  background: black;
   border-radius: 7px;
-  padding: 0 4px;
+  padding: 4px;
   margin: 3px 0;
 }
 group:hover {
@@ -93,31 +80,19 @@ group > * {
   padding: 0 6px;
 }
 
-/* Séparateur : fine barre verticale CSS (pas de glyphe texte), cf HANCORE.
- * Le format " " dans config laisse un espace fin ; on ponce le style. */
-#custom-sep {
-  background: transparent;
-  margin: 8px 0;
-  padding: 0;
-  min-width: 1px;
-  border-left: 1px solid alpha(@on-surface-variant, 0.35);
-}
-#custom-sep:hover {
-  background: transparent;
-}
-
 /* --- Workspaces --------------------------------------------------------
  * Pilule interne du groupe ws ; l'actif devient une pastille accentuée
  * élargie avec transition (inspiration HANCORE V1.3/V1.4). */
 #workspaces {
-  padding: 0 4px;
+  padding: 0 6px;
 }
 #workspaces button {
   padding: 0 6px;
-  margin: 5px 1px;
+  margin: 0;
+  min-width: 10px;
   background: transparent;
   color: @on-surface-variant;
-  border-radius: 7px;
+  border-radius: 0;
   transition: all 200ms ease;
 }
 #workspaces button:hover {
@@ -130,8 +105,8 @@ group > * {
   color: @surface;                 /* numéro lisible sur pastille accentuée */
   background: @primary;
   font-weight: bold;
-  min-width: 20px;                 /* élargissement de la pastille active */
-  padding: 0 10px;
+/*  min-width: 12px;                 élargissement de la pastille active */
+  padding: 0 6px;
 }
 #workspaces button.urgent {
   color: @error;
@@ -142,6 +117,7 @@ group > * {
 #hyprland-window,
 #window {
   color: @on-surface;
+  margin-right: 6px;
 }
 #window.empty {
   color: alpha(@on-surface-variant, 0.5);
