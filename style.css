@@ -49,7 +49,7 @@ window#waybar {
 .modules-left,
 .modules-center,
 .modules-right {
-  background: alpha(@surface, 0.90);
+  background: alpha(@surface, 0.60);
   color: @on-surface-variant;
   border-radius: 5px;
   padding: 0 12px;
@@ -68,28 +68,38 @@ window#waybar {
   margin: 0 3px;
 }
 
+#left1:hover, #left2:hover, #center1:hover, #center2:hover, #right1:hover, #right2:hover {
+background: alpha(@surface-solid, 1);    /* hover solide */
+color: @on-surface;
+}
+
+#left1, #center1, #right1 {
+  border-right: 1px solid alpha(@on-surface-variant, 0.25);
+}
+
 /* --- Workspaces --------------------------------------------------------
  * Pilule interne du groupe ws ; l'actif devient une pastille accentuée
  * élargie avec transition (inspiration HANCORE V1.3/V1.4). */
 #workspaces button {
   padding: 0;
   min-width: 16px;
+  margin-top: 3px;
   background: transparent;
   color: @on-surface-variant;
   border-radius: 0;
+  border-bottom: 3px solid alpha(@primary, 0);
   transition: all 200ms ease;
 }
 #workspaces button:hover {
   background: alpha(@primary, 0.15);
   color: @on-surface;
-  box-shadow: none;
   text-shadow: none;
 }
 #workspaces button.active {
-  color: @surface;                 /* numéro lisible sur pastille accentuée */
-  background: @primary;
+  color: @on-surface-variant;
+  border-bottom: 3px solid alpha(@primary, 0.6);   /* remplace le fond */
+  text-shadow: none;
   font-weight: bold;
-/*  min-width: 12px;                 élargissement de la pastille active */
 }
 #workspaces button.urgent {
   color: @error;
