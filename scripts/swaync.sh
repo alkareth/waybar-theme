@@ -18,9 +18,9 @@ else
 fi
 
 case "$class" in
-  dnd)          icon="" ;;   # bell-slash
-  notification) icon="" ;;   # bell
-  *)            icon="" ;;   # bell-outline
+  dnd)          icon="" ;;   # bell-slash
+  notification) icon="" ;;   # bell
+  *)            icon="" ;;   # bell-outline
 esac
 
 printf '{"text":"%s","tooltip":"%s notif(s)","class":"%s"}\n' \

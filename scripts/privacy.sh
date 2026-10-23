@@ -58,10 +58,9 @@ else
 fi
 
 if [ "$cls" = "active" ]; then
-  icon="\uf03d"    # mic (NF) si micro sinon volume-high
-  [ "$mic" != "1" ] && icon="\uf028"
+  icon=""    # mic (NF) si micro sinon volume-high
 else
-  icon="\uf3ed"    # shield-outline NF
+  icon=""    # shield-outline NF
 fi
 
 printf '{"text":"%s","tooltip":"%s","class":"%s"}\n' "$icon" "$tooltip" "$cls"

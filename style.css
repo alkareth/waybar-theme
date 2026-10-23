@@ -28,8 +28,7 @@
 
 * {
   font-family: "Noto Sans Nerd Font", "JetBrainsMono Nerd Font", sans-serif;
-  font-size: 10px;
-  border: none;
+  font-size: 12px;
   min-height: 0;
 }
 
@@ -50,46 +49,31 @@ window#waybar {
 .modules-left,
 .modules-center,
 .modules-right {
-  background: alpha(@surface, 0.55);
+  background: alpha(@surface, 0.90);
   color: @on-surface-variant;
-  border-radius: 7px;
-  padding: 0;
+  border-radius: 5px;
+  padding: 0 12px;
   margin: 0;
 }
+.modules-left { padding-left: 6px; }
 
 .modules-left:hover,
 .modules-center:hover,
 .modules-right:hover {
-  background: alpha(@surface-solid, 1);   /* hover solide */
+  background: alpha(@surface-solid, 1);    /* hover solide */
   color: @on-surface;
 }
 
-/* Groupes = pilule englobante un peu plus discrète, sans hover global
- * (chaque sous-module gère son propre hover). */
-group {
-  background: black;
-  border-radius: 7px;
-  padding: 4px;
-  margin: 3px 0;
-}
-group:hover {
-  background: alpha(@surface, 0.35);
-}
-group > * {
-  margin: 2px 2px;
-  padding: 0 6px;
+#left1, #left2, #center1, #center2, #right1, #right2 {
+  margin: 0 3px;
 }
 
 /* --- Workspaces --------------------------------------------------------
  * Pilule interne du groupe ws ; l'actif devient une pastille accentuée
  * élargie avec transition (inspiration HANCORE V1.3/V1.4). */
-#workspaces {
-  padding: 0 6px;
-}
 #workspaces button {
-  padding: 0 6px;
-  margin: 0;
-  min-width: 10px;
+  padding: 0;
+  min-width: 16px;
   background: transparent;
   color: @on-surface-variant;
   border-radius: 0;
@@ -106,7 +90,6 @@ group > * {
   background: @primary;
   font-weight: bold;
 /*  min-width: 12px;                 élargissement de la pastille active */
-  padding: 0 6px;
 }
 #workspaces button.urgent {
   color: @error;
@@ -117,7 +100,6 @@ group > * {
 #hyprland-window,
 #window {
   color: @on-surface;
-  margin-right: 6px;
 }
 #window.empty {
   color: alpha(@on-surface-variant, 0.5);
@@ -174,10 +156,14 @@ group > * {
 #custom-privacy            { color: @on-surface-variant; }
 #custom-privacy.active     { color: @error; }
 
-/* --- Tray --------------------------------------------------------------- */
-#tray {
-  padding: 0 6px;
+#cpu, #memory, #temperature, #battery,
+#network, #bluetooth, #pulseaudio, #custom-swaync, #custom-privacy {
+  padding: 0 3px;
 }
+#network { padding-right: 5px }
+#battery { padding-right: 0 }
+
+/* --- Tray --------------------------------------------------------------- */
 #tray > .passive {
   -gtk-icon-effect: dim;
 }
@@ -191,20 +177,16 @@ menu > * {
   background: @overlay;
   color: @on-surface;
   border-radius: 7px;
-  border: 1px solid alpha(@primary, 0.25);
   padding: 4px;
 }
 menu > item:hover {
   background: alpha(@primary, 0.15);
-  border-radius: 5px;
 }
 
 /* --- Tooltips (calendrier, détails réseau, etc.) ----------------------- */
 tooltip {
   background: alpha(@surface-solid, 0.95);
   color: @on-surface;
-  border-radius: 7px;
-  border: 1px solid alpha(@primary, 0.25);
 }
 tooltip label {
   padding: 4px;
