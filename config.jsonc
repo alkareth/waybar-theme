@@ -3,40 +3,45 @@
 {
   "layer": "top",
   "position": "top",
-  "height": 30,
-  "spacing": 4,
-  "margin-top": 0,
+  "height": 32,
+  "spacing": 0,
+  "margin-top": 6,
+  "margin-left": 6,
+  "margin-right": 6,
   "margin-bottom": 0,
-  "margin-left": 0,
-  "margin-right": 0,
   "reload_style_on_change": true,
 
   // Une entrée sans "output" = une barre par écran automatiquement,
   // avec la même config => barres identiques sur tes 2 écrans.
+  // Trois "pills" séparés : modules-left / center / right gèrent chacun
+  // leur background + padding (cf style.css). Les groupes "group/*"
+  // collent plusieurs modules dans la même pill.
   "modules-left": [
     "hyprland/workspaces",
+    "custom/sep",
     "hyprland/window"
   ],
 
   "modules-center": [
-    "clock",
-    "custom/mediaplayer"
+    "group/center-media",
+    "custom/sep",
+    "group/center-clock"
   ],
 
   "modules-right": [
-    "custom/privacy",        // placeholder (micro/caméra) — à compléter plus tard
-    "cpu",
-    "memory",
-    "temperature",
-    "battery",
-    "network",
-    "bluetooth",
-    "pulseaudio",            // module wireplumber/pipewire-compatible
-    "custom/swaync",
-    "tray"
+    "group/right-privacy",
+    "custom/sep",
+    "group/right-swaync"
   ],
 
   // ————————————————————— GAUCHE —————————————————————
+  // Séparateur minimal (un "|") entre les pills / au sein des pills.
+  "custom/sep": {
+    "format": "│",
+    "tooltip": false,
+    "interval": "once"
+  },
+
   "hyprland/workspaces": {
     "format": "{icon}",
     "on-click": "activate",
@@ -45,9 +50,7 @@
     },
     "format-icons": {
       "1": "1", "2": "2", "3": "3", "4": "4", "5": "5",
-      "6": "6", "7": "7", "8": "8", "9": "9", "10": "0",
-      "active": "",
-      "default": ""
+      "6": "6", "7": "7", "8": "8", "9": "9", "10": "0"
     }
   },
 
@@ -62,6 +65,22 @@
   },
 
   // ————————————————————— CENTRE —————————————————————
+  // Groupes = une seule pill ; les modules internes sont "collés",
+  // on met un custom/sep entre clock & media AU SEIN d'un groupe si besoin.
+  "group/center-media": {
+    "orientation": "inherit",
+    "modules": [
+      "custom/mediaplayer"
+    ]
+  },
+
+  "group/center-clock": {
+    "orientation": "inherit",
+    "modules": [
+      "clock"
+    ]
+  },
+
   "clock": {
     "format": "{:%a %d %b  %H:%M}",
     "tooltip-format": "<big>{:%Y %B}</big>\n<tt><small>{calendar}</small></tt>",
@@ -115,7 +134,31 @@
   },
 
   // ————————————————————— DROITE —————————————————————
-  // Placeholder privacy : affiche rien tant que non configuré.
+  // Pill "privacy + système" : micro/cam (placeholder), cpu, ram, temp, batterie.
+  "group/right-privacy": {
+    "orientation": "inherit",
+    "modules": [
+      "custom/privacy",
+      "cpu",
+      "memory",
+      "temperature",
+      "battery"
+    ]
+  },
+
+  // Pill "réseau + audio + notifications + tray".
+  "group/right-swaync": {
+    "orientation": "inherit",
+    "modules": [
+      "network",
+      "bluetooth",
+      "pulseaudio",
+      "custom/swaync",
+      "tray"
+    ]
+  },
+
+  // Placeholder privacy : renvoie une icône neutre pour rester visible.
   // Phase 2 : script qui détecte micro/cam via pw-dump / hyprctl.
   "custom/privacy": {
     "exec": "~/.config/waybar/scripts/privacy.sh",

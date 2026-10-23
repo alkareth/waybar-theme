@@ -32,47 +32,62 @@
   min-height: 0;
 }
 
-/* --- Fenêtre / geometry -----------------------------------------------
- * 6px d'espace entre la barre et le haut + les côtés de l'écran.
- * margin-* sur window#waybar décale toute la couche ; padding-* laisse
- * respirer le contenu à l'intérieur des bords arrondis. */
+/* --- Fenêtre / géométrie ----------------------------------------------
+ * window#waybar est TOTALEMENT transparent : ce sont les trois sections
+ * (.modules-left/.center/.right) qui jouent le rôle de "pills" flottantes
+ * (background, marges, padding, hover). Les 6px d'espace avec le bord de
+ * l'écran sont gérés par margin-* dans config.jsonc. */
 window#waybar {
-  background: @surface;
+  background: transparent;
   color: @on-surface;
-  border-radius: 7px;
-  margin-top: 6px;
-  margin-left: 6px;
-  margin-right: 6px;
-  padding-left: 6px;
-  padding-right: 6px;
-  transition: background 0.2s ease;
+  border: none;
 }
 
-/* Les modules sont empilés dans .modules-left/center/right ; on garde un
- * petit gap interne entre blocs (cohérent avec le "spacing" de config.jsonc) */
+/* Chaque section = une pill arrondie, semi-transparente, solide au survol */
 .modules-left,
 .modules-center,
 .modules-right {
-  padding: 0;
+  background: @surface;
+  border-radius: 7px;
+  padding: 0 10px;
+  margin: 4px 3px;           /* petit espace entre les 3 pills */
+  transition: background 0.2s ease;
 }
 
-/* --- Blocs génériques : discrets, solides au survol ------------------- */
+.modules-left:hover,
+.modules-center:hover,
+.modules-right:hover {
+  background: @surface-solid;
+}
+
+/* Groupes (group/*) et modules internes : pas de fond propre,
+ * ils vivent DANS la pill de leur section. */
+.group,
 .modules-left > *,
 .modules-center > *,
 .modules-right > * {
-  padding: 0 8px;
-  margin: 0 2px;
   background: transparent;
+  border-radius: 0;
+  margin: 0;
+  padding: 0 6px;
   color: @on-surface-variant;
-  border-radius: 7px;
-  transition: all 0.15s ease;
+  transition: color 0.15s ease;
 }
 
-.modules-left > *:hover,
-.modules-center > *:hover,
-.modules-right > *:hover {
-  background: @surface-solid;
-  color: @on-surface;
+/* À l'intérieur d'un groupe, les modules collent (pas de padding latéral
+ * sur les bords intérieurs pour garder le "│" bien placé). */
+.group > * {
+  padding: 0 6px;
+}
+
+/* Le premier/dernier module d'une pill garde les coins arrondis visuels
+ * grâce à l'overflow du parent — rien à faire côté enfant. */
+
+/* Séparateur vertical interne (custom/sep) */
+#custom-sep {
+  color: alpha(@on-surface-variant, 0.4);
+  padding: 0 2px;
+  font-weight: bold;
 }
 
 /* --- Workspaces -------------------------------------------------------- */
@@ -84,14 +99,15 @@ window#waybar {
   border-radius: 7px;
 }
 #workspaces button:hover {
-  background: @surface-solid;
+  background: alpha(@primary, 0.15);
   color: @on-surface;
   box-shadow: none;
   text-shadow: none;
 }
 #workspaces button.active {
   color: @primary;
-  background: alpha(@primary, 0.18);
+  background: alpha(@primary, 0.25);
+  font-weight: bold;
 }
 #workspaces button.urgent {
   color: @error;
@@ -104,7 +120,7 @@ window#waybar {
   color: @on-surface;
 }
 #window.empty {
-  color: transparent;
+  color: alpha(@on-surface-variant, 0.5);
 }
 
 /* --- Horloge ----------------------------------------------------------- */
@@ -146,10 +162,15 @@ window#waybar {
 #custom-swaync.notification   { color: @primary; }
 #custom-swaync.dnd            { color: @warning; }
 
+/* Privacy placeholder : visible même inactif (cf privacy.sh qui renvoie
+ * désormais une icône "shield" au lieu d'une chaîne vide). */
+#custom-privacy               { color: @on-surface-variant; }
+#custom-privacy.active        { color: @error; }
+
 /* --- Tray --------------------------------------------------------------- */
 #tray {
   padding: 0 4px;
-  border-radius: 7px;
+  border-radius: 0;
 }
 #tray > .passive {
   -gtk-icon-effect: dim;
