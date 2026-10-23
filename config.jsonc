@@ -1,0 +1,266 @@
+// ~/.config/waybar/config.jsonc
+// Waybar >= 0.10 — Hyprland, barre en haut, identique sur les 2 écrans
+{
+  "layer": "top",
+  "position": "top",
+  "height": 34,
+  "spacing": 6,               // espace entre les pills (left/center/right)
+  "margin-top": 6,            // gap de 6px avec le haut de l'écran
+  "margin-left": 6,           // gap de 6px à gauche
+  "margin-right": 6,          // gap de 6px à droite
+  "margin-bottom": 0,
+  "reload_style_on_change": true,
+
+  // Une entrée sans "output" = une barre par écran automatiquement,
+  // avec la même config => barres identiques sur tes 2 écrans.
+  // window#waybar est transparent : ce sont les sections modules-* qui
+  // dessinent des "pills" séparées (cf style.css).
+  "modules-left": [
+    "group/ws",
+    "custom/sep",
+    "hyprland/window"
+  ],
+
+  "modules-center": [
+    "group/clock",
+    "custom/sep",
+    "group/media"
+  ],
+
+  // DROITE, ordre demandé :
+  // sous-groupe 1 (icônes seules, tooltip pour détails) : tray, swaync, wifi, bt, audio
+  // séparateur
+  // sous-groupe 2 (icône + valeur) : cpu, ram, temp (+ batterie si dispo)
+  "modules-right": [
+    "group/status-icons",
+    "custom/sep",
+    "group/system-info"
+  ],
+
+  // ————————————————————— GAUCHE —————————————————————
+  // Séparateur : fine barre verticale dessinée en CSS (border-left dans
+  // style.css), le format n'est qu'un espace occupant la largeur.
+  "custom/sep": {
+    "format": " ",
+    "tooltip": false,
+    "interval": "once"
+  },
+
+  "group/ws": {
+    "orientation": "inherit",
+    "modules": ["hyprland/workspaces"]
+  },
+
+  "hyprland/workspaces": {
+    // "{name}" = numéro du workspace visible, y compris l'actif.
+    "format": "{name}",
+    "on-click": "activate",
+    "persistent-workspaces": {
+      "*": [1, 2, 3, 4, 5]
+    }
+  },
+
+  "hyprland/window": {
+    "format": "{title}",
+    "max-length": 60,
+    "separate-outputs": true,
+    "rewrite": {
+      "(.*) — Mozilla Firefox": " $1",
+      "(.*) - fish": "> $1"
+    }
+  },
+
+  // ————————————————————— CENTRE —————————————————————
+  "group/clock": {
+    "orientation": "inherit",
+    "modules": ["clock"]
+  },
+
+  "clock": {
+    "format": "{:%a %d %b  %H:%M}",
+    "tooltip-format": "<big>{:%Y %B}</big>\n<tt><small>{calendar}</small></tt>",
+    "format-alt": "{:%Y-%m-%d}",
+    "actions": {
+      "onclick": "zoom",
+      "on-scroll-up": "shift prev_month",
+      "on-scroll-down": "shift next_month",
+      "tooltip-scroll": "shift next_month"
+    },
+    "calendar": {
+      "mode": "month",
+      "mode-mon-col": 3,
+      "weeks-pos": "right",
+      "on-scroll": 1,
+      "format": {
+        "months": "<span color='#a6adc8'><tt><b>{}</b></tt></span>",
+        "days": "<span color='#bac2de'>{}</span>",
+        "weekdays": "<span color='#89b4fa'><b>{}</b></span>",
+        "today": "<u><span color='#f5c2e7'><b>{}</b></span></u>",
+        "weekly": "<span color='#94e2d0'>W{}</span>",
+        "max_length": 25
+      }
+    }
+  },
+
+  "group/media": {
+    "orientation": "inherit",
+    "modules": ["custom/mediaplayer"]
+  },
+
+  // MPRIS brut, prêt pour le ricing "avancé" plus tard (drop-down etc.)
+  "mpris/player": {
+    "player-name": ".*",
+    "interval": 5,
+    "format": "{player_icon} {dynamic}",
+    "play-pause-icon-only": false,
+    "max-length": 50
+  },
+
+  "custom/mediaplayer": {
+    "exec": "~/.config/waybar/scripts/mediaplayer.sh",
+    "return-type": "json",
+    "interval": 5,
+    "tooltip": true,
+    "on-click": "playerctl play-pause",
+    "on-click-right": "playerctl next",
+    "on-scroll-up": "playerctl position 5+",
+    "on-scroll-down": "playerctl position 5-",
+    "format": "{}",
+    "max-length": 60
+  },
+
+  // ————————————————————— DROITE —————————————————————
+  // Sous-groupe 1 : icônes seules, infos textuelles en tooltip.
+  "group/status-icons": {
+    "orientation": "inherit",
+    "modules": [
+      "tray",
+      "custom/swaync",
+      "network",
+      "bluetooth",
+      "pulseaudio"
+    ]
+  },
+
+  // Sous-groupe 2 : icône Nerd Font + valeur texte.
+  "group/system-info": {
+    "orientation": "inherit",
+    "modules": [
+      "cpu",
+      "memory",
+      "temperature",
+      "battery"
+    ]
+  },
+
+  "cpu": {
+    "format": " {usage}%",
+    "tooltip": true,
+    "tooltip-format": "CPU: {usage}%\nCharge: {load}",
+    "interval": 5
+  },
+
+  "memory": {
+    "format": " {percentage}%",
+    "tooltip": true,
+    "tooltip-format": "RAM: {used:0.1f}Go / {total:0.1f}Go",
+    "interval": 5
+  },
+
+  // Température CPU via coretemp. On utilise hwmon-path-abs (chemin du
+  // device parent STABLE, /sys/devices/platform/coretemp.0/hwmon) plutôt que
+  // hwmon-path (/sys/class/hwmon/hwmonN/...) : le numéro hwmonN change selon
+  // l'ordre de chargement des modules noyau (reboot, mise à jour, dongle
+  // USB...) et cassait la lecture (capteur fantôme figé à 25°C). Waybar
+  // résout lui-même le sous-dossier hwmonN variable sous ce chemin.
+  "temperature": {
+    "hwmon-path-abs": "/sys/devices/platform/coretemp.0/hwmon",
+    "input-index": 0,   // temp1 = Tctl (package), confirmé sur ta machine
+    "critical-threshold": 80,
+    "format": " {temperatureC}°C",
+    "format-critical": " {temperatureC}°C",
+    "tooltip": true,
+    "tooltip-format": "{temperatureC}°C ({temperatureF}°F)",
+    "interval": 5
+  },
+
+  "battery": {
+    "bat": "BAT1",
+    "adapter": "ACAD",
+    "full-at": 100,
+    "states": { "good": 95, "warning": 30, "critical": 15 },
+    "format": "{icon} {capacity}%",
+    "format-charging": " {capacity}%",
+    "format-plugged": " {capacity}%",
+    "format-full": "{icon} Full",
+    "format-icons": ["", "", "", "", ""],
+    "tooltip": true,
+    "interval": 60
+  },
+
+  // Icône seule ; SSID/IP/signal dans le tooltip. Clic = menu réseau.
+  "network": {
+    "interface": "wlp*",
+    "family": "ipv4",
+    "format-wifi": "",
+    "format-ethernet": "",
+    "format-linked": "",
+    "format-disconnected": "⚠",
+    "tooltip-format-wifi": "{essid}\nIP : {ipaddr}/{cidr}\nSignal : {signalStrength}%",
+    "tooltip-format-ethernet": "{ifname}\nIP : {ipaddr}/{cidr}",
+    "tooltip-format-disconnected": "Déconnecté",
+    "on-click": "~/.config/waybar/scripts/network-menu.sh",
+    "interval": 10
+  },
+
+  // Invisible quand éteint/hors service (pour ne pas polluer la pill).
+  "bluetooth": {
+    "format": "",
+    "format-disabled": "",
+    "format-off": "",
+    "format-connected": "",
+    "tooltip": true,
+    "tooltip-format": "{status}\n{num_connections} appareil(s)",
+    "controller": "org/bluez/hci0",
+    "interval": 30
+  },
+
+  // PipeWire via pipewire-pulse : le module pulseaudio fonctionne.
+  // Icône seule, volume/muette/disp. dans le tooltip ; clic = mute via wpctl.
+  "pulseaudio": {
+    "format": "{icon}",
+    "format-bluetooth": "{icon}",
+    "format-muted": "",
+    "tooltip-format": "{volume}% {format_source}",
+    "tooltip-format-muted": "Muet",
+    "format-icons": {
+      "headphone": "",
+      "hands-free": "",
+      "headset": "",
+      "phone": "",
+      "portable": "",
+      "car": "",
+      "default": ["", "", ""]
+    },
+    "scroll-step": 5,
+    "on-click": "~/.config/waybar/scripts/toggle-mute.sh",
+    "on-click-right": "pavucontrol",
+    "min-length": 2
+  },
+
+  // SwayNC : piloté par swaync-client. Le script renvoie du JSON
+  // {text, tooltip, class} selon qu'il y a des notifs non-lues ou pas.
+  "custom/swaync": {
+    "exec": "~/.config/waybar/scripts/swaync.sh",
+    "return-type": "json",
+    "interval": 5,
+    "on-click": "~/.config/waybar/scripts/swaync-toggle.sh",
+    "tooltip": true
+  },
+
+  "tray": {
+    "icon-size": 16,
+    "spacing": 6,
+    "tooltip": true
+  }
+}

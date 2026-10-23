@@ -1,0 +1,232 @@
+/* ~/.config/waybar/style.css
+ *
+ * Thème : base "Colloid-dark" (GTK/Qt) + prêt pour Matugen.
+ * -------------------------------------------------------------------------
+ * MATUGEN : ce fichier ne référence QUE les variables du bloc
+ * MATUGEN START/END. matugen (template waybar/style.css) régénère
+ * uniquement ce bloc à chaque changement de wallpaper -> re-theming 100%
+ * dynamique sans toucher le reste. Ne change pas les noms de variables.
+ * Valeurs par défaut = esprit Colloid-dark (sombre, accent teal #5fb3b3).
+ * NB : @define-color n'accepte PAS rgba() en CSS GTK -> on sépare
+ * couleur hex + alpha via la fonction alpha() de GTK.
+ * -------------------------------------------------------------------------
+ */
+
+/* === MATUGEN START — bloc régénéré par matugen, ne pas éditer à la main === */
+@define-color surface       #24273a;   /* fond des pills (avec alpha())      */
+@define-color surface-solid #2b2e42;   /* fond au hover / tooltips           */
+@define-color overlay       #1e222a;   /* menus, popups tray                 */
+@define-color on-surface        #d9e0ee;  /* texte principal                  */
+@define-color on-surface-variant #a7b0c5; /* texte secondaire / icônes         */
+@define-color primary       #5fb3b3;   /* accent (colloid teal)              */
+@define-color secondary     #89b4fa;   /* accent secondaire                  */
+@define-color tertiary      #c6aaef;   /* média / workspace spécial          */
+@define-color error         #e64553;   /* critique / urgent                  */
+@define-color warning       #df8e1d;   /* batterie faible / DnD              */
+@define-color success       #40a02b;   /* playback / bon état                */
+/* === MATUGEN END === */
+
+* {
+  font-family: "Noto Sans Nerd Font", "JetBrainsMono Nerd Font", sans-serif;
+  font-size: 12px;
+  border: none;
+  min-height: 0;
+}
+
+/* --- Fenêtre / géométrie ----------------------------------------------
+ * Style "pills par module" (façon HANCORE V1.2+) :
+ * window#waybar est 100% transparent ; CHAQUE module dessine sa propre
+ * pilule arrondie semi-transparente qui devient solide au survol.
+ * Les gaps écran (6px haut/gauche/droite) viennent de margin-* dans
+ * config.jsonc ; l'espace entre pilules vient de "spacing": 6.
+ * Le conteneur .modules-* ne dessine plus rien lui-même. */
+window#waybar {
+  background: transparent;
+  color: @on-surface;
+  border: none;
+}
+
+.modules-left,
+.modules-center,
+.modules-right {
+  background: transparent;
+  border-radius: 0;
+  padding: 0;
+  margin: 0;
+}
+
+/* La pilule unitaire : appliquée aux modules directs ET aux enfants de
+ * groupes (un group est lui-même une pilule contenant des sous-pilules). */
+.modules-left > *,
+.modules-center > *,
+.modules-right > *,
+.group > * {
+  background: alpha(@surface, 0.55);
+  color: @on-surface-variant;
+  border-radius: 7px;
+  padding: 0 8px;
+  margin: 4px 0;
+  transition: background 200ms ease, color 150ms ease;
+}
+
+.modules-left > *:hover,
+.modules-center > *:hover,
+.modules-right > *:hover,
+.group > *:hover {
+  background: alpha(@surface-solid, 1);   /* hover solide */
+  color: @on-surface;
+}
+
+/* Groupes = pilule englobante un peu plus discrète, sans hover global
+ * (chaque sous-module gère son propre hover). */
+group {
+  background: alpha(@surface, 0.35);
+  border-radius: 7px;
+  padding: 0 4px;
+  margin: 3px 0;
+}
+group:hover {
+  background: alpha(@surface, 0.35);
+}
+group > * {
+  margin: 2px 2px;
+  padding: 0 6px;
+}
+
+/* Séparateur : fine barre verticale CSS (pas de glyphe texte), cf HANCORE.
+ * Le format " " dans config laisse un espace fin ; on ponce le style. */
+#custom-sep {
+  background: transparent;
+  margin: 8px 0;
+  padding: 0;
+  min-width: 1px;
+  border-left: 1px solid alpha(@on-surface-variant, 0.35);
+}
+#custom-sep:hover {
+  background: transparent;
+}
+
+/* --- Workspaces --------------------------------------------------------
+ * Pilule interne du groupe ws ; l'actif devient une pastille accentuée
+ * élargie avec transition (inspiration HANCORE V1.3/V1.4). */
+#workspaces {
+  padding: 0 4px;
+}
+#workspaces button {
+  padding: 0 6px;
+  margin: 5px 1px;
+  background: transparent;
+  color: @on-surface-variant;
+  border-radius: 7px;
+  transition: all 200ms ease;
+}
+#workspaces button:hover {
+  background: alpha(@primary, 0.15);
+  color: @on-surface;
+  box-shadow: none;
+  text-shadow: none;
+}
+#workspaces button.active {
+  color: @surface;                 /* numéro lisible sur pastille accentuée */
+  background: @primary;
+  font-weight: bold;
+  min-width: 20px;                 /* élargissement de la pastille active */
+  padding: 0 10px;
+}
+#workspaces button.urgent {
+  color: @error;
+  background: alpha(@error, 0.15);
+}
+
+/* --- Fenêtre active ---------------------------------------------------- */
+#hyprland-window,
+#window {
+  color: @on-surface;
+}
+#window.empty {
+  color: alpha(@on-surface-variant, 0.5);
+}
+
+/* --- Horloge ----------------------------------------------------------- */
+#clock {
+  color: @on-surface;
+}
+#clock:hover {
+  color: @primary;
+}
+
+/* --- Média ------------------------------------------------------------- */
+#custom-mediaplayer {
+  color: @success;
+}
+#custom-mediaplayer.paused {
+  color: @on-surface-variant;
+}
+
+/* --- Infos système (groupe icône+valeur) ------------------------------- */
+#cpu,
+#memory,
+#temperature,
+#battery {
+  color: @on-surface;
+}
+/* Classes d'état natives Waybar (cf HANCORE) : teintent aussi l'icône. */
+#cpu.high        { color: @warning; }
+#memory.warning  { color: @warning; }
+#memory.critical { color: @error; }
+#temperature.critical { color: @error; }
+#battery.warning  { color: @warning; }
+#battery.critical { color: @error; }
+#battery.charging,
+#battery.plugged  { color: @success; }
+
+/* --- Réseau / BT / son (groupe icônes seules) -------------------------- */
+#network.disconnected { color: @error; }
+#network.wifi         { color: @on-surface; }
+#bluetooth.disabled,
+#bluetooth.off        { color: transparent; }
+#pulseaudio.muted     { color: @on-surface-variant; }
+
+/* --- SwayNC ------------------------------------------------------------- */
+#custom-swaync              { color: @on-surface-variant; }
+#custom-swaync.inactive     { color: @on-surface-variant; }
+#custom-swaync.notification { color: @primary; }
+#custom-swaync.dnd          { color: @warning; }
+
+/* Privacy retiré (placeholder invisible) — réintégrable plus tard. */
+
+/* --- Tray --------------------------------------------------------------- */
+#tray {
+  padding: 0 6px;
+}
+#tray > .passive {
+  -gtk-icon-effect: dim;
+}
+#tray > .needs-attention {
+  -gtk-icon-effect: highlight;
+}
+
+/* --- Menus (tray, network, etc.) — homogènes avec le thème -------------- */
+menu,
+menu > * {
+  background: @overlay;
+  color: @on-surface;
+  border-radius: 7px;
+  border: 1px solid alpha(@primary, 0.25);
+  padding: 4px;
+}
+menu > item:hover {
+  background: alpha(@primary, 0.15);
+  border-radius: 5px;
+}
+
+/* --- Tooltips (calendrier, détails réseau, etc.) ----------------------- */
+tooltip {
+  background: alpha(@surface-solid, 0.95);
+  color: @on-surface;
+  border-radius: 7px;
+  border: 1px solid alpha(@primary, 0.25);
+}
+tooltip label {
+  padding: 4px;
+}
