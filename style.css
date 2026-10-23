@@ -34,67 +34,91 @@
 }
 
 /* --- Fenêtre / géométrie ----------------------------------------------
- * window#waybar est TOTALEMENT transparent et sans marge visible : il ne
- * fait que positionner les sections. Les gaps écran (6px haut/gauche/droite)
- * viennent de margin-* dans config.jsonc ; l'espace entre les 3 pills vient
- * de "spacing": 6. */
+ * Style "pills par module" (façon HANCORE V1.2+) :
+ * window#waybar est 100% transparent ; CHAQUE module dessine sa propre
+ * pilule arrondie semi-transparente qui devient solide au survol.
+ * Les gaps écran (6px haut/gauche/droite) viennent de margin-* dans
+ * config.jsonc ; l'espace entre pilules vient de "spacing": 6.
+ * Le conteneur .modules-* ne dessine plus rien lui-même. */
 window#waybar {
   background: transparent;
   color: @on-surface;
   border: none;
 }
 
-/* Chaque section = une pill flottante arrondie, semi-transparente,
- * solide au survol. C'est ICI (et pas sur window#waybar) que vivent
- * backgrounds / paddings / hover. */
 .modules-left,
 .modules-center,
 .modules-right {
-  background: alpha(@surface, 0.55);
-  border-radius: 7px;
-  padding: 0 10px;
-  margin: 4px 0;               /* respiration verticale dans la barre */
-  transition: background 200ms ease;
-}
-
-.modules-left:hover,
-.modules-center:hover,
-.modules-right:hover {
-  background: alpha(@surface-solid, 1);
-}
-
-/* Groupes (group/*) et modules internes : pas de fond propre, ils vivent
- * DANS la pill de leur section. */
-.group,
-.modules-left > *,
-.modules-center > *,
-.modules-right > * {
   background: transparent;
   border-radius: 0;
+  padding: 0;
   margin: 0;
-  padding: 0 5px;
-  color: @on-surface-variant;
-  transition: color 150ms ease;
 }
 
+/* La pilule unitaire : appliquée aux modules directs ET aux enfants de
+ * groupes (un group est lui-même une pilule contenant des sous-pilules). */
+.modules-left > *,
+.modules-center > *,
+.modules-right > *,
 .group > * {
-  padding: 0 5px;
+  background: alpha(@surface, 0.55);
+  color: @on-surface-variant;
+  border-radius: 7px;
+  padding: 0 8px;
+  margin: 4px 0;
+  transition: background 200ms ease, color 150ms ease;
 }
 
-/* Séparateur vertical (custom/sep) — visible mais discret. */
+.modules-left > *:hover,
+.modules-center > *:hover,
+.modules-right > *:hover,
+.group > *:hover {
+  background: alpha(@surface-solid, 1);   /* hover solide */
+  color: @on-surface;
+}
+
+/* Groupes = pilule englobante un peu plus discrète, sans hover global
+ * (chaque sous-module gère son propre hover). */
+group {
+  background: alpha(@surface, 0.35);
+  border-radius: 7px;
+  padding: 0 4px;
+  margin: 3px 0;
+}
+group:hover {
+  background: alpha(@surface, 0.35);
+}
+group > * {
+  margin: 2px 2px;
+  padding: 0 6px;
+}
+
+/* Séparateur : fine barre verticale CSS (pas de glyphe texte), cf HANCORE.
+ * Le format " " dans config laisse un espace fin ; on ponce le style. */
 #custom-sep {
-  color: alpha(@on-surface-variant, 0.5);
-  padding: 0 2px;
-  font-weight: bold;
+  background: transparent;
+  margin: 8px 0;
+  padding: 0;
+  min-width: 1px;
+  border-left: 1px solid alpha(@on-surface-variant, 0.35);
+}
+#custom-sep:hover {
+  background: transparent;
 }
 
-/* --- Workspaces -------------------------------------------------------- */
+/* --- Workspaces --------------------------------------------------------
+ * Pilule interne du groupe ws ; l'actif devient une pastille accentuée
+ * élargie avec transition (inspiration HANCORE V1.3/V1.4). */
+#workspaces {
+  padding: 0 4px;
+}
 #workspaces button {
-  padding: 0 7px;
+  padding: 0 6px;
   margin: 5px 1px;
   background: transparent;
   color: @on-surface-variant;
   border-radius: 7px;
+  transition: all 200ms ease;
 }
 #workspaces button:hover {
   background: alpha(@primary, 0.15);
@@ -103,9 +127,11 @@ window#waybar {
   text-shadow: none;
 }
 #workspaces button.active {
-  color: @surface;                    /* numéro lisible sur pastille accentuée */
+  color: @surface;                 /* numéro lisible sur pastille accentuée */
   background: @primary;
   font-weight: bold;
+  min-width: 20px;                 /* élargissement de la pastille active */
+  padding: 0 10px;
 }
 #workspaces button.urgent {
   color: @error;
@@ -144,9 +170,15 @@ window#waybar {
 #battery {
   color: @on-surface;
 }
+/* Classes d'état natives Waybar (cf HANCORE) : teintent aussi l'icône. */
+#cpu.high        { color: @warning; }
+#memory.warning  { color: @warning; }
+#memory.critical { color: @error; }
 #temperature.critical { color: @error; }
-#battery.warning      { color: @warning; }
-#battery.critical     { color: @error; }
+#battery.warning  { color: @warning; }
+#battery.critical { color: @error; }
+#battery.charging,
+#battery.plugged  { color: @success; }
 
 /* --- Réseau / BT / son (groupe icônes seules) -------------------------- */
 #network.disconnected { color: @error; }
@@ -165,22 +197,32 @@ window#waybar {
 
 /* --- Tray --------------------------------------------------------------- */
 #tray {
-  padding: 0 4px;
-  border-radius: 0;
+  padding: 0 6px;
 }
 #tray > .passive {
   -gtk-icon-effect: dim;
 }
-#tray menu,
-#tray menu > * {
+#tray > .needs-attention {
+  -gtk-icon-effect: highlight;
+}
+
+/* --- Menus (tray, network, etc.) — homogènes avec le thème -------------- */
+menu,
+menu > * {
   background: @overlay;
   color: @on-surface;
   border-radius: 7px;
+  border: 1px solid alpha(@primary, 0.25);
+  padding: 4px;
+}
+menu > item:hover {
+  background: alpha(@primary, 0.15);
+  border-radius: 5px;
 }
 
 /* --- Tooltips (calendrier, détails réseau, etc.) ----------------------- */
 tooltip {
-  background: @surface-solid;
+  background: alpha(@surface-solid, 0.95);
   color: @on-surface;
   border-radius: 7px;
   border: 1px solid alpha(@primary, 0.25);

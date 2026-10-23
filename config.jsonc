@@ -38,9 +38,10 @@
   ],
 
   // ————————————————————— GAUCHE —————————————————————
-  // Séparateur minimal (un "│") entre les pills / au sein des groupes.
+  // Séparateur : fine barre verticale dessinée en CSS (border-left dans
+  // style.css), le format n'est qu'un espace occupant la largeur.
   "custom/sep": {
-    "format": "│",
+    "format": " ",
     "tooltip": false,
     "interval": "once"
   },
@@ -166,14 +167,15 @@
     "interval": 5
   },
 
-  // ⚠ TEMPÉRATEUR bloquée à 25°C : hwmon2/temp1 est souvent un capteur
-  // fantôme. Trouve le bon avec :
-  //   for f in /sys/class/hwmon/hwmon*/temp*_input; do \
-  //     echo "$(cat ${f%_input}_label 2>/dev/null || echo $f): $(cat $f)"; done
-  // puis mets le chemin exact ci-dessous (ex. Tctl / k1temp / acpitz).
-  // En secours : "hwmon-path-abs": "/sys/devices/platform/coretemp.0/hwmon"
+  // Température CPU via coretemp. On utilise hwmon-path-abs (chemin du
+  // device parent STABLE, /sys/devices/platform/coretemp.0/hwmon) plutôt que
+  // hwmon-path (/sys/class/hwmon/hwmonN/...) : le numéro hwmonN change selon
+  // l'ordre de chargement des modules noyau (reboot, mise à jour, dongle
+  // USB...) et cassait la lecture (capteur fantôme figé à 25°C). Waybar
+  // résout lui-même le sous-dossier hwmonN variable sous ce chemin.
   "temperature": {
-    "hwmon-path": "/sys/class/hwmon/hwmon2/temp1_input",
+    "hwmon-path-abs": "/sys/devices/platform/coretemp.0/hwmon",
+    "input-index": 0,   // temp1 = Tctl (package), confirmé sur ta machine
     "critical-threshold": 80,
     "format": " {temperatureC}°C",
     "format-critical": " {temperatureC}°C",
