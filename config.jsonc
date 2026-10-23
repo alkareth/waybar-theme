@@ -165,8 +165,10 @@
   // USB...) et cassait la lecture (capteur fantôme figé à 25°C). Waybar
   // résout lui-même le sous-dossier hwmonN variable sous ce chemin.
   "temperature": {
-    "hwmon-path-abs": "/sys/devices/platform/coretemp.0/hwmon",
-    "input-index": 0,   // temp1 = Tctl (package), confirmé sur ta machine
+//    "hwmon-path-abs": "/sys/devices/platform/coretemp.0/hwmon",
+//    "hwmon-name": "coretemp",
+//    "input-name": "temp1_input",
+    "hwmon-path": "/sys/class/hwmon/hwmon7/temp1_input",
     "critical-threshold": 80,
     "format": " {temperatureC}°C",
     "format-critical": " {temperatureC}°C",
