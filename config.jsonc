@@ -1,53 +1,43 @@
 // ~/.config/waybar/config.jsonc
 // Waybar >= 0.10 — Hyprland, barre en haut, identique sur les 2 écrans
 {
+  // ——— Configuration globale ———
   "layer": "top",
   "position": "top",
   "height": 24,
-  //"spacing": 6,               // espace entre les pills (left/center/right)
-  "margin-top": 6,            // gap de 6px avec le haut de l'écran
-  "margin-left": 6,           // gap de 6px à gauche
-  "margin-right": 6,          // gap de 6px à droite
+  "margin-top": 6,
+  "margin-left": 6,
+  "margin-right": 6,
   "margin-bottom": 0,
   "reload_style_on_change": true,
 
-  // Une entrée sans "output" = une barre par écran automatiquement,
-  // avec la même config => barres identiques sur tes 2 écrans.
-  // window#waybar est transparent : ce sont les sections modules-* qui
-  // dessinent des "pills" séparées (cf style.css).
-  "modules-left": [
-    "group/left1",
-    "group/left2"
-  ],
-
-  "modules-center": [
-    "group/center1",
-    "group/center2"
-  ],
-
-  "modules-right": [
-    "group/right1",
-    "group/right2"
-  ],
+  // ——— Listes de modules ———
+  "modules-left": ["group/left"],
+  "modules-center": ["group/center"],
+  "modules-right": ["group/right"],
 
   // ————————————————————— GAUCHE —————————————————————
-  "group/left1": {
+  "group/left": {
+    "orientation": "inherit",
+    "modules": ["group/l1", "custom/sep", "group/l2"]
+  },
+
+  "group/l1": {
     "orientation": "inherit",
     "modules": ["hyprland/workspaces"]
   },
 
+  "group/l2": {
+    "orientation": "inherit",
+    "modules": ["hyprland/window"]
+  },
+
   "hyprland/workspaces": {
-    // "{name}" = numéro du workspace visible, y compris l'actif.
     "format": "{name}",
     "on-click": "activate",
     "persistent-workspaces": {
       "*": [1, 2, 3, 4, 5]
     }
-  },
-
-  "group/left2": {
-    "orientation": "inherit",
-    "modules": ["hyprland/window"]
   },
 
   "hyprland/window": {
@@ -56,18 +46,30 @@
     "separate-outputs": true,
     "rewrite": {
       "(.*) — Librewolf": "  $1",
-      "(.*) - fish": "> $1"
+      "(.*) — Kate": "󱃖  $1",
+      "([~/].*)": "󰆍  $1",
+      "nvim (.*)": "  $1",
     }
   },
 
   // ————————————————————— CENTRE —————————————————————
-  "group/center1": {
+  "group/center": {
+    "orientation": "inherit",
+    "modules": ["group/c1", "custom/sep", "group/c2"]
+  },
+
+  "group/c1": {
     "orientation": "inherit",
     "modules": ["clock"]
   },
 
+  "group/c2": {
+    "orientation": "inherit",
+    "modules": ["custom/mediaplayer"]
+  },
+
   "clock": {
-    "format": "{:%a %d %b  %H:%M}",
+    "format": "{:%H:%M}",
     "tooltip-format": "<big>{:%Y %B}</big>\n<tt><small>{calendar}</small></tt>",
     "format-alt": "{:%Y-%m-%d}",
     "actions": {
@@ -92,20 +94,6 @@
     }
   },
 
-  "group/center2": {
-    "orientation": "inherit",
-    "modules": ["custom/mediaplayer"]
-  },
-
-  // MPRIS brut, prêt pour le ricing "avancé" plus tard (drop-down etc.)
-  "mpris/player": {
-    "player-name": ".*",
-    "interval": 5,
-    "format": "{player_icon} {dynamic}",
-    "play-pause-icon-only": false,
-    "max-length": 50
-  },
-
   "custom/mediaplayer": {
     "exec": "~/.config/waybar/scripts/mediaplayer.sh",
     "return-type": "json",
@@ -120,11 +108,21 @@
   },
 
   // ————————————————————— DROITE —————————————————————
-  // Sous-groupe 1 : icônes seules, infos textuelles en tooltip.
-  "group/right1": {
+  "group/right": {
     "orientation": "inherit",
     "modules": [
-      "tray",
+      "group/r1",
+      "custom/sep",
+      "group/r2",
+      "custom/sep",
+      "group/power-menu"
+    ]
+  },
+
+  // Sous-groupe 1 : icônes seules, infos textuelles en tooltip
+  "group/r1": {
+    "orientation": "inherit",
+    "modules": [
       "custom/privacy",
       "custom/swaync",
       "network",
@@ -133,8 +131,8 @@
     ]
   },
 
-  // Sous-groupe 2 : icône Nerd Font + valeur texte.
-  "group/right2": {
+  // Sous-groupe 2 : icône + valeur texte (système)
+  "group/r2": {
     "orientation": "inherit",
     "modules": [
       "cpu",
@@ -144,30 +142,103 @@
     ]
   },
 
+  // Power-menu : drawer au survol, s'ouvre de droite à gauche
+  "group/power-menu": {
+    "orientation": "inherit",
+    "drawer": {
+      "transition-duration": 300,
+      "transition-left-to-right": false,
+      "click-to-reveal": false
+    },
+    "modules": [
+      "custom/power-shutdown",
+      "custom/power-lock",
+      "custom/power-suspend",
+      "custom/power-logout",
+      "custom/power-reboot",
+    ]
+  },
+
+  // ——— Séparateur ———
+  "custom/sep": {
+    "exec": "~/.config/waybar/scripts/sep.sh",
+    "return-type": "json",
+    "interval": "once"
+  },
+
+  "custom/privacy": {
+    "exec": "~/.config/waybar/scripts/privacy.sh",
+    "return-type": "json",
+    "interval": 2
+  },
+
+  "custom/swaync": {
+    "exec": "~/.config/waybar/scripts/swaync.sh",
+    "return-type": "json",
+    "interval": 5,
+    "on-click": "~/.config/waybar/scripts/swaync-toggle.sh",
+    "tooltip": true
+  },
+
+  "network": {
+    "interface": "wlp*",
+    "family": "ipv4",
+    "format-wifi": "",
+    "format-disconnected": "⚠",
+    "tooltip-format-wifi": "{essid}\nIP : {ipaddr}/{cidr}\nSignal : {signalStrength}%",
+    "tooltip-format-ethernet": "{ifname}\nIP : {ipaddr}/{cidr}",
+    "tooltip-format-disconnected": "Déconnecté",
+    "on-click": "~/.config/waybar/scripts/network-menu.sh",
+    "interval": 10
+  },
+
+  "bluetooth": {
+    "format": "",
+    "format-disabled": "",
+    "format-off": "",
+    "format-connected": "",
+    "tooltip": true,
+    "tooltip-format": "{status}\n{num_connections} appareil(s)",
+    "controller": "org/bluez/hci0",
+    "interval": 30
+  },
+
+  "pulseaudio": {
+    "format": "{icon}",
+    "format-muted": "",
+    "tooltip-format": "{volume}% {format_source}",
+    "tooltip-format-muted": "Muet",
+    "format-icons": {
+      "headphone": "",
+      "hands-free": "",
+      "headset": "",
+      "phone": "",
+      "portable": "",
+      "car": "",
+      "default": ["", "", ""]
+    },
+    "scroll-step": 5,
+    "on-click": "~/.config/waybar/scripts/toggle-mute.sh",
+    "on-click-right": "pavucontrol",
+    "min-length": 2
+  },
+
+  // ——— Système ———
   "cpu": {
-    "format": " {usage}%",
+    "format": "  {usage}%",
     "tooltip": true,
     "tooltip-format": "CPU: {usage}%\nCharge: {load}",
     "interval": 5
   },
 
   "memory": {
-    "format": "󰆼 {percentage}%",
+    "format": "  {percentage}%",
     "tooltip": true,
     "tooltip-format": "RAM: {used:0.1f}Go / {total:0.1f}Go",
     "interval": 5
   },
 
-  // Température CPU via coretemp. On utilise hwmon-path-abs (chemin du
-  // device parent STABLE, /sys/devices/platform/coretemp.0/hwmon) plutôt que
-  // hwmon-path (/sys/class/hwmon/hwmonN/...) : le numéro hwmonN change selon
-  // l'ordre de chargement des modules noyau (reboot, mise à jour, dongle
-  // USB...) et cassait la lecture (capteur fantôme figé à 25°C). Waybar
-  // résout lui-même le sous-dossier hwmonN variable sous ce chemin.
   "temperature": {
-//    "hwmon-path-abs": "/sys/devices/platform/coretemp.0/hwmon",
-//    "hwmon-name": "coretemp",
-//    "input-name": "temp1_input",
     "hwmon-path": "/sys/class/hwmon/hwmon7/temp1_input",
     "critical-threshold": 80,
     "format": " {temperatureC}°C",
@@ -180,85 +251,49 @@
   "battery": {
     "adapter": "ACAD",
     "full-at": 100,
-    "states": { "good": 95, "warning": 30, "critical": 15 },
-    "format": "{icon} {capacity}%",
+    "states": {"good": 95, "warning": 30, "critical": 15},
+    "format": "{icon}  {capacity}%",
     "format-charging": " {capacity}%",
     "format-plugged": " {capacity}%",
-    "format-full": "{icon} {capacity}%",
+    "format-full": "{icon}  {capacity}%",
     "format-icons": ["", "", "", "", ""],
     "tooltip": true,
     "interval": 60
   },
 
-  // Icône seule ; SSID/IP/signal dans le tooltip. Clic = menu réseau.
-  "network": {
-    "interface": "wlp*",
-    "family": "ipv4",
-    "format-wifi": "",
-    "format-ethernet": "",
-    "format-linked": "",
-    "format-disconnected": "⚠",
-    "tooltip-format-wifi": "{essid}\nIP : {ipaddr}/{cidr}\nSignal : {signalStrength}%",
-    "tooltip-format-ethernet": "{ifname}\nIP : {ipaddr}/{cidr}",
-    "tooltip-format-disconnected": "Déconnecté",
-    "on-click": "~/.config/waybar/scripts/network-menu.sh",
-    "interval": 10
-  },
-
-  // Invisible quand éteint/hors service (pour ne pas polluer la pill).
-  "bluetooth": {
-    "format": "",
-    "format-disabled": "",
-    "format-off": "",
-    "format-connected": "",
+  // ——— Power-menu ———
+  "custom/power-shutdown": {
+    "format": "",
+    "on-click": "systemctl poweroff",
     "tooltip": true,
-    "tooltip-format": "{status}\n{num_connections} appareil(s)",
-    "controller": "org/bluez/hci0",
-    "interval": 30
+    "tooltip-format": "Éteindre"
   },
 
-  // PipeWire via pipewire-pulse : le module pulseaudio fonctionne.
-  // Icône seule, volume/muette/disp. dans le tooltip ; clic = mute via wpctl.
-  "pulseaudio": {
-    "format": "{icon}",
-    "format-bluetooth": "{icon}",
-    "format-muted": "",
-    "tooltip-format": "{volume}% {format_source}",
-    "tooltip-format-muted": "Muet",
-    "format-icons": {
-      "headphone": "",
-      "hands-free": "",
-      "headset": "",
-      "phone": "",
-      "portable": "",
-      "car": "",
-      "default": ["", "", ""]
-    },
-    "scroll-step": 5,
-    "on-click": "~/.config/waybar/scripts/toggle-mute.sh",
-    "on-click-right": "pavucontrol",
-    "min-length": 2
+  "custom/power-reboot": {
+    "format": "",
+    "on-click": "systemctl reboot",
+    "tooltip": true,
+    "tooltip-format": "Redémarrer"
   },
 
-  // SwayNC : piloté par swaync-client. Le script renvoie du JSON
-  // {text, tooltip, class} selon qu'il y a des notifs non-lues ou pas.
-  "custom/swaync": {
-    "exec": "~/.config/waybar/scripts/swaync.sh",
-    "return-type": "json",
-    "interval": 5,
-    "on-click": "~/.config/waybar/scripts/swaync-toggle.sh",
-    "tooltip": true
+  "custom/power-logout": {
+    "format": "",
+    "on-click": "loginctl terminate-user $USER",
+    "tooltip": true,
+    "tooltip-format": "Déconnexion"
   },
 
-  "custom/privacy": {
-    "exec": "~/.config/waybar/scripts/privacy.sh",
-    "return-type": "json",
-    "interval": 2
+  "custom/power-suspend": {
+    "format": "",
+    "on-click": "systemctl suspend",
+    "tooltip": true,
+    "tooltip-format": "Suspendre"
   },
 
-  "tray": {
-    "icon-size": 16,
-    "spacing": 6,
-    "tooltip": true
+  "custom/power-lock": {
+    "format": "",
+    "on-click": "echo 'Lock non configuré'",
+    "tooltip": true,
+    "tooltip-format": "Verrouiller (non configuré)"
   }
 }
