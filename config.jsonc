@@ -35,9 +35,7 @@
   "hyprland/workspaces": {
     "format": "{name}",
     "on-click": "activate",
-    "persistent-workspaces": {
-      "*": [1, 2, 3, 4, 5]
-    }
+    "all-outputs": true,
   },
 
   "hyprland/window": {
@@ -47,7 +45,7 @@
     "rewrite": {
       "(.*) — Librewolf": "  $1",
       "(.*) — Kate": "󱃖  $1",
-      "([~/].*)": "󰆍  $1",
+      "([~/…].*)": "󰆍  $1",
       "nvim (.*)": "  $1",
     }
   },
